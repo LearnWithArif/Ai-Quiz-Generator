@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Quiz Generator - Elegant & Clean Assessment Tool</title>
+  <meta name="description"
+    content="Generate custom multiple-choice quizzes using state-of-the-art AI models. Elegant, classic, and fast.">
+  <!-- Google Fonts: Outfit for Headings, Inter for Body -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+        <h1>AI Quiz Generator</h1>
+      </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="app-main">
+
+      <!-- 1. HOME SCREEN -->
+      <section id="home-screen" class="screen active">
+        <div class="card card-home">
+          <div class="card-header">
+            <h2>Create a Custom Quiz</h2>
+            <p class="subtitle">Enter your topic and let advanced AI draft a custom 5-question test for you instantly.
+            </p>
+          </div>
+
+          <form id="quiz-config-form" novalidate>
+            <!-- 1. Model Selection -->
+            <div class="form-group">
+              <label for="model-select">AI Model</label>
+              <div class="select-wrapper">
+                <select id="model-select" name="model" required>
+                  <option value="" disabled selected>Select an AI model...</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Google - Best Speed)</option>
+                  <option value="gemini-2.5-pro">Gemini 2.5 Pro (Google - High Accuracy)</option>
+                  <option value="gpt-4o">GPT-4o (OpenAI - Premium & Balanced)</option>
+                  <option value="gpt-4">GPT-4 (OpenAI - Classic Reasoning)</option>
+                  <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Anthropic - Nuanced Output)</option>
+                </select>
+                <span class="select-arrow"></span>
+              </div>
+            </div>
+
+            <!-- 2. API Key Input -->
+            <div class="form-group">
+              <div class="label-row">
+                <label id="api-key-label" for="api-key-input">API Key</label>
+                <span class="key-status-indicator" id="key-saved-badge">Saved</span>
+              </div>
+              <div class="input-password-wrapper">
+                <input type="password" id="api-key-input" name="apiKey" placeholder="Enter API key..." required
+                  autocomplete="current-password">
+                <button type="button" class="btn-toggle-password" id="toggle-password-btn"
+                  aria-label="Toggle Password Visibility">
+                  <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+              <p class="input-help-text" id="api-key-help">Keys are saved locally in your browser storage and sent
+                directly to the AI provider.</p>
+            </div>
+
+            <!-- 3. Quiz Topic -->
+            <div class="form-group">
+              <label for="topic-input">Quiz Topic</label>
+              <input type="text" id="topic-input" name="topic"
+                placeholder="e.g., Modern Web Architecture, Astronomy, Roman Empire" required>
+            </div>
+
+            <!-- 4. Fixed Info (Number of Questions) -->
+            <div class="form-group readonly-group">
+              <label>Number of Questions</label>
+              <div class="fixed-badge-field">
+                <span>5 Questions</span>
+                <span class="lock-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+
+
+            <!-- Generate Button -->
+            <button type="submit" id="generate-btn" class="btn btn-primary btn-block">
+              <span>Generate Quiz</span>
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 2. LOADING SCREEN -->
+      <section id="loading-screen" class="screen">
+        <div class="card card-loading">
+          <div class="spinner-container">
+            <div class="double-bounce-spinner">
+              <div class="double-bounce1"></div>
+              <div class="double-bounce2"></div>
+            </div>
+          </div>
+          <h2 id="loading-title">Generating Your Quiz</h2>
+          <p id="loading-status" class="loading-status">Connecting to AI model...</p>
+          <div class="loading-progress-track">
+            <div id="loading-progress-bar" class="loading-progress-bar"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. ERROR SCREEN -->
+      <section id="error-screen" class="screen">
+        <div class="card card-error">
+          <div class="error-icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
+          <h2>Generation Failed</h2>
+          <div class="error-message-box">
+            <p id="error-description">An error occurred while generating the quiz. Please check your network and API
+              credentials.</p>
+          </div>
+          <div class="error-remedy-tips" id="error-remedy-tips">
+            <!-- Populated dynamically -->
+          </div>
+          <button id="error-back-btn" class="btn btn-secondary btn-block">Back to Configuration</button>
+        </div>
+      </section>
+
+      <!-- 4. QUIZ SCREEN -->
+      <section id="quiz-screen" class="screen">
+        <div class="quiz-layout-wrapper">
+          <!-- Left side / Header Status -->
+          <div class="quiz-meta-panel">
+            <div class="quiz-info-block">
+              <span class="quiz-badge" id="quiz-topic-badge">General Science</span>
+              <span class="quiz-badge badge-gray" id="quiz-model-badge">Gemini 2.5 Flash</span>
+            </div>
+            <div class="progress-container">
+              <div class="progress-label-row">
+                <span class="progress-text" id="progress-question-num">Question 1 of 5</span>
+                <span class="progress-percent" id="progress-question-percent">20%</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill" id="quiz-progress-fill" style="width: 20%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="card card-quiz">
+            <div class="quiz-card-header">
+              <!-- Animated Circular Timer -->
+              <div class="timer-container" aria-label="Countdown timer">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                  <circle class="timer-track" cx="50" cy="50" r="45"></circle>
+                  <circle class="timer-fill" id="timer-indicator" cx="50" cy="50" r="45" stroke-dasharray="282.7"
+                    stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="timer-text" id="timer-countdown">30</div>
+              </div>
+            </div>
+
+            <div class="question-container">
+              <h3 id="question-text" class="question-text">Loading question text...</h3>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="options-grid" id="options-container">
+              <!-- Dynamically populated. Example format:
+              <button class="option-btn">
+                <span class="option-letter">A</span>
+                <span class="option-val">Option Text</span>
+              </button>
+              -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. RESULT SCREEN -->
+      <section id="result-screen" class="screen">
+        <div class="card card-result">
+          <div class="result-header">
+            <div class="result-badge-badge" id="result-performance-badge">Excellent</div>
+            <h2>Quiz Completed!</h2>
+            <p class="subtitle" id="result-topic-subtitle">Topic: JavaScript Basics</p>
+            <p class="sub-model-info" id="result-model-subtitle">Model: GPT-4o</p>
+          </div>
+
+          <!-- Score Circle -->
+          <div class="score-circle-container">
+            <div class="score-circle">
+              <span class="score-number" id="result-score-fraction">4/5</span>
+              <span class="score-label" id="result-percent">80%</span>
+            </div>
+          </div>
+
+          <p class="result-feedback" id="result-feedback-message">Fantastic work! You have shown great command of the
+            subject.</p>
+
+          <!-- Details Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-val" id="stat-total">5</span>
+              <span class="stat-lbl">Questions</span>
+            </div>
+            <div class="stat-card success-stat">
+              <span class="stat-val" id="stat-correct">4</span>
+              <span class="stat-lbl">Correct</span>
+            </div>
+            <div class="stat-card danger-stat">
+              <span class="stat-val" id="stat-wrong">1</span>
+              <span class="stat-lbl">Wrong</span>
+            </div>
+            <div class="stat-card warning-stat">
+              <span class="stat-val" id="stat-unanswered">0</span>
+              <span class="stat-lbl">Unanswered</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="result-actions">
+            <button id="replay-btn" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+              </svg>
+              <span>Play Again</span>
+            </button>
+            <button id="new-quiz-btn" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>New Quiz</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 AI Quiz Generator. Built with elegance and precision.</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
